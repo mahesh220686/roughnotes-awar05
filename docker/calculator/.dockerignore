@@ -1,0 +1,8 @@
+# Ignore common files that shouldn't be in the Docker image
+.DS_Store
+*.log
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore

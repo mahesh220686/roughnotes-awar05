@@ -13,7 +13,6 @@ docker images --> List all the images we have in this machine.
 
 https://hub.docker.com/
 
-
 docker ps 		--> shows running containers
 docker ps -a 	--> shows running and stopped containers
 
@@ -41,7 +40,6 @@ docker run -d -p <host-port>:<container-port> nginx:latest
 docker run -d --name mydemo-nginx -p 80:80 nginx:latest
 
 ---
-
 
 docker inspect <container-id>	--> Shows all info about the container
 
@@ -104,12 +102,203 @@ Bridge is the common and default network mode we use most of the times.. In AWS,
 
 ---
 
+Dockerfile : To containerise and deliver our application, we have to first write our own Dockerfiles, then we need to build, need to push it to "Docker Hub" / "ECR (Elastic Container Registry)".. 
+We can pull it from anywhere and run it.. 
 
 
+FROM 	--> We have to specify the base image to use for building the Docker image. (Base OS)
+
+FROM ubuntu:20.02
+FROM alpine:latest 
+
+---
+
+RUN		--> Executes command in a new layer on top of the above mentioned base image. 
+
+RUN apt-get update && apt-get install nginx -y
+
+**We can combine multiple commands into single layer to reduce the image layers and size
+
+---
+
+WORKDIR	--> Sets the working directory for the base image.
+
+WORKDIR /app
+
+---
+
+COPY	--> Copies files/directories from the local/host to the image we are preapring. Unlike ADD, it doesnt unpack archieves.
+
+COPY /home/ec2-user/mydata/ /usr/share/nginx/html/
+COPY . .
+
+---
+
+ADD		--> Similar to COPY, but supports archieve extractions.. (.tzr.gz)
+
+ADD my_data.tar.gz /app/
+
+---
+
+**At organisation Level, we always follow one security standard/measure.. We never run images as root user.. 
+
+USER	--> Sets the user to use when we are running an image.
+
+USER appuser
+USER ec2-user
+
+---
+
+CMD : provides the default arguments for the container execution. Overrridden if arguments are passed when we are running container using "docker run" 
+
+CMD ["nginx", "-g", "daemon off;"]
+
+---
+
+ENTRYPOINT : Defines a command that always runs, even if arguments are passed with "docker run"
+
+ENTRYPOINT ["python", "app.py"]
+
+---
+
+ENV		--> Sets environment variables for use during the build and runtime.
+
+ENV	APP_ENV=production
+ENV	APP_ENV=uat
+
+---
+
+EXPOSE	--> We can defines the port number that the container listens on. It doesnt publish the port. 
+
+EXPORT 80
+
+---
+
+VOLUME	--> Creates a mount point and makes it as a persistent or shared volume.
+
+VOLUME /var/lib/mysql
+
+---
+
+LABEL	--> We can add metadata to the image
+
+LABEL maintener="avinash" version="1.1"
+
+---
+
+HEALTHCHECK		--> We can definea a command to check the container health at runtime.
+
+HEALTHCHECK CMD curl --fail http://localhost:80 || exit 1
 
 
+---
+
+Dockerfile
+
+---
+
+FROM python:3.15.0a1-alpine3.22
+
+LABEL owner="avinash@avinash.com"
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 80
+
+CMD ["python","app.py"]
+
+---
 
 
+docker build -t my-python-app:v1 .
+
+
+---
+
+Volumes : When we run a container, its file system is temporary. If you remove the container all data inside the container will loss.
+
+VOlumes = Peristant data storage.
+This volumes helps to keep data "outside of the container"..
+
+
+Volume : We can create volume by dokcer and we can mount it to the container..
+Bind Mount : We can map a host directory to the container.. 
+tmpfs mount: Stores data in RAM.. 
+
+
+docker volume ls			--> List the volumes we have in docker
+
+docker volume create my_data	--> Create a volume
+
+docker volume inspect my_data	--> Give volume info i.e; actual path where data is storing
+
+
+docker run -d --name mysql-db -v my_data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=MyPass@123 mysql:latest
+
+-v --> volume (my_data:/var/lib/mysql)
+
+---
+
+docker volume create shared_data
+
+cd /var/lib/docker/volumes/shared_data/_data
+
+created "index.html"
+
+docker run -d --name nginx-app -v shared_data:/usr/share/nginx/html/ -p 80:80 nginx:latest
+
+docker run -d --name httpd-app -v shared_data:/usr/local/apache2/htdocs -p 8080:80 httpd:latest
+
+---
+
+bind local
+
+cd /home/ec2-user
+mkdir myappdata
+Create some files i.e; index.html / other data
+
+docker run -d -p 80:80 -v /home/ec2-user/myappdata:/usr/share/nginx/html nginx
+
+
+##ReadOnly
+docker run -d -p 80:80 -v /home/ec2-user/myappdata:/usr/share/nginx/html:ro nginx
+
+---
+
+docker volume rm my_data	--> Remove the volume
+docker volume prune			--> Cleanup unused volume
+
+---
+
+
+docker build -t <name>:<tag> .			--> Docker file should be in same location (Dockerfile)
+
+docker build -t <name>:<tag> ./app		--> If Docker file is in diff location (Dockerfile)
+
+docker build -f Dockerfile.dev -t <name>:<tag> ./app --> Build with diff file name
+
+docker build --no-cache -t <name>:<tag> .		--> Forcefully rebuild all layers by ignoring the cached layers/data.
+
+docker build --label owner="Avinash" -t <name>:<tag> .		--> We can pass metadata
+
+
+---
+
+hub.docker.com			--> Signup
+
+
+Your password will be stored unencrypted in /root/.docker/config.json
+
+rm /root/.docker/config.json
+
+
+docker tag local-image-name:tag <docker-username>/imagename:tag
+
+docker push thipparthiavinash/mycalapp-awar05:latest
 
 
 

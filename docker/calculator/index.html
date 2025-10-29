@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Modern Calculator - Designed by Aviz Academy to understand Docker concepts">
+    <title>Docker Calculator | Aviz Academy</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg class="docker-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="8" width="3" height="3" fill="currentColor" />
+                    <rect x="6" y="8" width="3" height="3" fill="currentColor" />
+                    <rect x="10" y="8" width="3" height="3" fill="currentColor" />
+                    <rect x="6" y="4" width="3" height="3" fill="currentColor" />
+                    <rect x="10" y="4" width="3" height="3" fill="currentColor" />
+                    <rect x="14" y="8" width="3" height="3" fill="currentColor" />
+                    <path
+                        d="M18 10c-.5-1-1.5-1.5-2.5-1.5-.2 0-.4 0-.5.1-.5-1.5-2-2.6-3.8-2.6h-.4v.5c0 .8-.3 1.5-.8 2.1-.4.4-.6.9-.6 1.4v.5h8.1c1.1 0 2 .9 2 2s-.9 2-2 2H3.5c-.3 0-.5-.2-.5-.5v-3c0-1.7.7-3.2 1.8-4.3"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <h1>Aviz Academy</h1>
+            </div>
+            <p class="subtitle">Docker Learning Calculator</p>
+        </header>
+
+        <main class="calculator" role="main" aria-label="Calculator">
+            <div class="display-container">
+                <input type="text" id="display" readonly aria-label="Calculator display" placeholder="0" />
+            </div>
+            <div class="buttons" role="grid" aria-label="Calculator buttons">
+                <button onclick="clearDisplay()" aria-label="Clear all" class="function-btn">C</button>
+                <button onclick="appendToDisplay('/')" aria-label="Divide" class="operator-btn">÷</button>
+                <button onclick="appendToDisplay('*')" aria-label="Multiply" class="operator-btn">×</button>
+                <button onclick="deleteLast()" aria-label="Delete last entry" class="function-btn">⌫</button>
+
+                <button onclick="appendToDisplay('7')" aria-label="Seven">7</button>
+                <button onclick="appendToDisplay('8')" aria-label="Eight">8</button>
+                <button onclick="appendToDisplay('9')" aria-label="Nine">9</button>
+                <button onclick="appendToDisplay('-')" aria-label="Subtract" class="operator-btn">−</button>
+
+                <button onclick="appendToDisplay('4')" aria-label="Four">4</button>
+                <button onclick="appendToDisplay('5')" aria-label="Five">5</button>
+                <button onclick="appendToDisplay('6')" aria-label="Six">6</button>
+                <button onclick="appendToDisplay('+')" aria-label="Add" class="operator-btn">+</button>
+
+                <button onclick="appendToDisplay('1')" aria-label="One">1</button>
+                <button onclick="appendToDisplay('2')" aria-label="Two">2</button>
+                <button onclick="appendToDisplay('3')" aria-label="Three">3</button>
+                <button onclick="calculate()" class="equal" aria-label="Equals">=</button>
+
+                <button onclick="appendToDisplay('0')" class="zero" aria-label="Zero">0</button>
+                <button onclick="appendToDisplay('.')" aria-label="Decimal point">.</button>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p class="credit">Designed by <strong>Aviz Academy</strong></p>
+                <p class="purpose">To understand the Docker concepts</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
