@@ -355,10 +355,148 @@ kubectl get pods -A
 
 =====
 
+configMap : Equalant to "AWS SSM parameter Store"
+Secrets: Equalant to "AWS Secrets Manager"
+
+
+Create a file with al your sensitive info
+
+kubectl create configmap db-config --from-env-file=config.txt
+
+---
+
+kubectl create secret generic db-secret --from-file=dbpassword.txt
+
+
+--
+
+kubectl get secret db-secret -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
+
+---
+
+helm charts: 
+
+install
+uninstall / delete
+history
+versioning
+
+
+My-app/
+	Charts
+	Templates
+		deployment.yml
+		service.yml
+		ingress.yml
+		HPA.yml
+		Serviceaccount.yml
+	values.yml
+	chart.yml
+	
+		
+Install helm
+
+https://artifacthub.io/
+
+
+helm ls				--> displays charts deployed using helm
+helm repo ls		--> Lists installed charts ion current machine
+
+helm search repo bitnami		--> List out all bitnami's repos
+helm search repo bitnami/cassandra	--> Displays info about bitnami's cassandra chart
+
+helm install my-nginx bitnami/nginx
+
+helm create mynodeapp
+
+
+helm rollback mynodeapp 4
+
+
+HPA : Horizontal Pod Autoscaling : 
+
+
+Vertical Scaling : Ading more resources i.e; cpu, memory to an existing instance.
+Horizontal Scaling : Adding more instances/servers to deliver our application.
+
+
+VPA : Vertical pod Autoscaling : We dont use.. 
+HPA : Horizontal Pod Autoscaling : 
+
+if we are getting more load on existig pods, AWS HPA automatically add more pods/ remore existing pods.
+
+--> Adding pods happens very quickly
+--> Removing pods happens very slowly
+
+We can use CPU, memory to scale the resources.
+
+kubectl autoscale deployment cal-app --cpu-percent=50 --min=1 ==max=10
+
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=6
+
+
+kubectl get hpa
 
 
 
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
 
+
+
+CPU
+===============
+m --> millocores
+
+0.1 CPU --> 100m
+0.5 CPU --> 500m
+1 CPU --> 1000m
+2 CPU --> 2000m
+
+Memory
+==============
+Mi --> mebibytes
+Gi --> Gibibytes
+
+1 Mi = 1024 KiB
+1 Gi = 1024 Mi
+
+
+====
+
+
+eksctl create cluster --name=ekswithavinash --version 1.33 --region ap-south-1 --zones=ap-south-1a,ap-south-1b --nodegroup-name ng-default --node-type t3.small --nodes 2 --node-ami-family=AmazonLinux2023 --managed
+
+eksctl utils associate-iam-oidc-provider --region ap-south-1 --cluster ekswithavinash --approve
+
+aws eks describe-nodegroup --cluster-name ekswithavinash --nodegroup-name ng-default
+
+
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+helm install cluster-autoscaler autoscaler/cluster-autoscaler \
+  --namespace kube-system \
+  --set autoDiscovery.clusterName=ekswithavinash \
+  --set awsRegion=ap-south-1 \
+  --set extraArgs.balance-similar-node-groups=true \
+  --set extraArgs.skip-nodes-with-system-pods=false
+
+
+
+---
+
+eksctl create iamserviceaccount   \
+   --name ebs-csi-controller-sa   \
+   --namespace kube-system   \
+   --cluster ekswithavinash  \
+   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy  \
+   --approve \
+   --role-only \
+   --role-name AmazonEKS_EBS_CSI_DriverRole
+
+export SERVICE_ACCOUNT_ROLE_ARN=arn:aws:iam::982424467695:role/AmazonEKS_EBS_CSI_DriverRole
+
+
+aws ecr-public get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin public.ecr.aws
 
 
 
